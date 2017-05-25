@@ -51,26 +51,23 @@ model:add(nn.Linear(20*9*9,100))
 model:add(nn.ReLU())
 model:add(nn.Linear(100,17))
 model:add(nn.LogSoftMax())
-
--- model = torch.load('fullmodel_back.net')
+model = torch.load('dropout_modelv1.net')
 -- model = model:float()
 model = model:cuda()
-criterion = nn.ClassNLLCriterion()
-criterion = criterion:cuda()
-trainset.data = trainset.data:cuda()
-trainset.label = trainset.label:cuda()
+-- criterion = nn.ClassNLLCriterion()
+-- criterion = criterion:cuda()
+-- trainset.data = trainset.data:cuda()
+-- trainset.label = trainset.label:cuda()
 testset.data = testset.data:cuda()
 testset.label = testset.label:cuda()
-trainer = nn.StochasticGradient(model, criterion)
-trainer.learningRate = 0.0001
-trainer.learningRateDecay = 0.09
-trainer.maxIteration = 500
-trainer:train(trainset)
-model = model:float()
-torch.save('dropout_modelv2_lr_decay.net',model)
+-- trainer = nn.StochasticGradient(model, criterion)
+-- trainer.learningRate = 0.0001
+-- trainer.learningRateDecay = 0.09
+-- trainer.maxIteration = 500
+-- trainer:train(trainset)
 eval = function(dataset)
     correct = 0
-    for i=1,size*.8 do
+    for i=1,dataset.size do
         local target = dataset.label[i]
         local prediction = model:forward(dataset.data[i])
         local confidences, indices = torch.sort(prediction, true)  
@@ -78,7 +75,10 @@ eval = function(dataset)
             correct = correct + 1
         end
     end
-    return correct/(size*.8)*100
+    return correct/dataset.size*100
 end
 
 print(eval(testset))
+
+-- model = model:float()
+-- torch.save('dropout_modelv2_lr_decay.net',model)
