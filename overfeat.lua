@@ -1,21 +1,31 @@
 optim = require 'optim'
 require 'cunn';
 
-fullset = torch.load('back231.dat')
-shuffle = torch.randperm(68)
+fullset = torch.load('data/size_231.dat') -- Shuffling fullset
+size = fullset.size
+shuffle = torch.randperm(size)
 shuffleset = fullset
-for i=1,68 do
+for i=1,size do
     shuffleset.data[i] = fullset.data[shuffle[i]]
     shuffleset.label[i] = fullset.label[shuffle[i]]
     end
 fullset = shuffleset
 
+-- Trainset 80% of fullset
 trainset = {
-    data = fullset.data[{{1,68}}]:double(),
-    label = fullset.label[{{1,68}}]
+    data = fullset.data[{{1,size*.8}}]:float(),
+    label = fullset.label[{{1,size*.8}}],
+    size = size*.8
 }
 
+-- Testset 20% of fullset
+testset = {
+    data = fullset.data[{{size*.8+1,size}}]:float(),
+    label = fullset.label[{{size*.8+1,size}}],
+    size = size-size*.8
+}
 
+-- Converting trainset to meatable
 setmetatable(trainset, 
     {__index = function(t, i) 
                     return {t.data[i], t.label[i]} 
@@ -27,49 +37,41 @@ function trainset:size()
     return self.data:size(1) 
 end
 
-
+-- Model
 nn = require 'nn'
--- net = nn.Sequential()
--- net:add(nn.SpatialConvolution(3, 96, 11, 11, 4, 4))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
--- net:add(nn.SpatialConvolution(96, 256, 5, 5, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
--- net:add(nn.SpatialConvolution(256, 512, 3, 3, 1, 1, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialConvolution(512, 1024, 3, 3, 1, 1, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialConvolution(1024, 1024, 3, 3, 1, 1, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
--- net:add(nn.SpatialConvolution(1024, 3072, 6, 6, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialConvolution(3072, 4096, 1, 1, 1, 1))
--- net:add(nn.ReLU())
--- net:add(nn.SpatialConvolution(4096, 1000, 1, 1, 1, 1))
--- net:add(nn.View(1000))
--- net:add(nn.SpatialSoftMax())
-net=torch.load('model.net')
-net:remove(20)
-net:add(nn.Linear(1000,500))
-net:add(nn.ReLU())
-net:add(nn.Linear(500,17))
-net:add(nn.SpatialSoftMax())
-for i=1,17 do
-    net.modules[i].train = false
-end
--- model = torch.load('fullmodel_back.net')
--- model = model:float()
-model = net:cuda()
-criterion = nn.ClassNLLCriterion()
+
+model = torch.load('initmodelv4.net')  -- loading the model
+model = model:cuda()  -- model for gpu
+criterion = nn.ClassNLLCriterion()   
 criterion = criterion:cuda()
-trainset.data = trainset.data:cuda()
+
+trainset.data = trainset.data:cuda()    -- Trainset for cuda
 trainset.label = trainset.label:cuda()
 
-trainer = nn.StochasticGradient(model, criterion)
+trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
 trainer.learningRate = 0.0001
+trainer.learningRateDecay = 0.09 
 trainer.maxIteration = 500
 trainer:train(trainset)
-model = model:float()
-torch.save('overfeatmodelv2.net',model)
+
+
+testset.data = testset.data:cuda()  -- Testset for cuda
+testset.label = testset.label:cuda()
+
+eval = function(dataset)      -- evalutation of testset
+    correct = 0
+    for i=1,dataset.size do
+        local target = dataset.label[i]
+        local prediction = model:forward(dataset.data[i])
+        local confidences, indices = torch.sort(prediction, true)  
+        if target == indices[1] then
+            correct = correct + 1
+        end
+    end
+    return correct/dataset.size*100
+end
+
+print(eval(testset))
+
+model = model:float()  -- converting cuda model to cpu model
+torch.save('modelv4.net',model)   -- saving model
