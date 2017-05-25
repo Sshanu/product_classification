@@ -1,5 +1,5 @@
 require 'image'
-img_size = 100
+img_size = 224
 l = 17
 ibt=torch.ByteTensor(l*4*(8+3*9),3,img_size,img_size)
 il=torch.ByteTensor(l*4*(8+3*9))

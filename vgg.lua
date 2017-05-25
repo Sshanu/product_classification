@@ -1,7 +1,7 @@
 optim = require 'optim'
 require 'cunn';
 
-fullset = torch.load('data/size_100.dat') -- Shuffling fullset
+fullset = torch.load('data/size_224.dat') -- Shuffling fullset
 size = fullset.size
 shuffle = torch.randperm(size)
 shuffleset = fullset
@@ -39,24 +39,8 @@ end
 
 -- Model
 nn = require 'nn'
-model = nn.Sequential()
-model:add(nn.SpatialConvolution(3,6,5,5))
-model:add(nn.SpatialMaxPooling(2,2,2,2))
-model:add(nn.ReLU())
-model:add(nn.SpatialConvolution(6,16,5,5))
-model:add(nn.SpatialMaxPooling(2,2,2,2))
-model:add(nn.ReLU())
-model:add(nn.SpatialConvolution(16,20,5,5))
-model:add(nn.SpatialMaxPooling(2,2,2,2))
-model:add(nn.ReLU())
-model:add(nn.View(20*9*9))
-model:add(nn.Dropout(.2))
-model:add(nn.Linear(20*9*9,100))
-model:add(nn.ReLU())
-model:add(nn.Linear(100,17))
-model:add(nn.LogSoftMax())
 
--- model = torch.load('modelv1.net')  -- loading the model
+model = torch.load('initmodelv3.net')  -- loading the model
 model = model:cuda()  -- model for gpu
 criterion = nn.ClassNLLCriterion()   
 criterion = criterion:cuda()
@@ -67,7 +51,7 @@ trainset.label = trainset.label:cuda()
 trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
 trainer.learningRate = 0.0001
 trainer.learningRateDecay = 0.09 
-trainer.maxIteration = 1000
+trainer.maxIteration = 500
 trainer:train(trainset)
 
 
@@ -90,4 +74,4 @@ end
 print(eval(testset))
 
 model = model:float()  -- converting cuda model to cpu model
-torch.save('modelv2.net',model)   -- saving model
+torch.save('modelv3.net',model)   -- saving model

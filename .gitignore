@@ -1,0 +1,5 @@
+#models
+*.net
+
+#data
+*.dat
