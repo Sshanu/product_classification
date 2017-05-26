@@ -11,30 +11,30 @@ for i=1,size do
     end
 fullset = shuffleset
 
--- Trainset 80% of fullset
+-- Trainset 50% of fullset
 trainset = {
-    data = fullset.data[{{1,size*.8}}]:float(),
-    label = fullset.label[{{1,size*.8}}],
-    size = size*.8
+    data = fullset.data[{{1,size*.5}}]:float(),
+    label = fullset.label[{{1,size*.5}}],
+    size = size*.5
 }
 
 -- Testset 20% of fullset
 testset = {
-    data = fullset.data[{{size*.8+1,size}}]:float(),
-    label = fullset.label[{{size*.8+1,size}}],
-    size = size-size*.8
+    data = fullset.data[{{size*.5+1,size}}]:float(),
+    label = fullset.label[{{size*.5+1,size}}],
+    size = size-size*.5
 }
 
 -- Converting trainset to meatable
-setmetatable(trainset, 
-    {__index = function(t, i) 
-                    return {t.data[i], t.label[i]} 
+setmetatable(trainset,
+    {__index = function(t, i)
+                    return {t.data[i], t.label[i]}
                 end}
 );
 trainset.data = trainset.data:float() -- convert the data from a ByteTensor to a DoubleTensor.
 
-function trainset:size() 
-    return self.data:size(1) 
+function trainset:size()
+    return self.data:size(1)
 end
 
 -- Model
@@ -42,7 +42,7 @@ nn = require 'nn'
 
 model = torch.load('initmodelv3.net')  -- loading the model
 model = model:cuda()  -- model for gpu
-criterion = nn.ClassNLLCriterion()   
+criterion = nn.ClassNLLCriterion()
 criterion = criterion:cuda()
 
 trainset.data = trainset.data:cuda()    -- Trainset for cuda
@@ -50,7 +50,6 @@ trainset.label = trainset.label:cuda()
 
 trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
 trainer.learningRate = 0.0001
-trainer.learningRateDecay = 0.09 
 trainer.maxIteration = 500
 trainer:train(trainset)
 
@@ -63,7 +62,7 @@ eval = function(dataset)      -- evalutation of testset
     for i=1,dataset.size do
         local target = dataset.label[i]
         local prediction = model:forward(dataset.data[i])
-        local confidences, indices = torch.sort(prediction, true)  
+        local confidences, indices = torch.sort(prediction, true)
         if target == indices[1] then
             correct = correct + 1
         end

@@ -11,18 +11,18 @@ for i=1,size do
     end
 fullset = shuffleset
 
--- Trainset 80% of fullset
+-- Trainset 50% of fullset
 trainset = {
-    data = fullset.data[{{1,size*.8}}]:float(),
-    label = fullset.label[{{1,size*.8}}],
-    size = size*.8
+    data = fullset.data[{{1,size*.5}}]:float(),
+    label = fullset.label[{{1,size*.5}}],
+    size = size*.5
 }
 
 -- Testset 20% of fullset
 testset = {
-    data = fullset.data[{{size*.8+1,size}}]:float(),
-    label = fullset.label[{{size*.8+1,size}}],
-    size = size-size*.8
+    data = fullset.data[{{size*.5+1,size}}]:float(),
+    label = fullset.label[{{size*.5+1,size}}],
+    size = size-size*.5
 }
 
 -- Converting trainset to meatable
@@ -50,7 +50,6 @@ trainset.label = trainset.label:cuda()
 
 trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
 trainer.learningRate = 0.0001
-trainer.learningRateDecay = 0.09 
 trainer.maxIteration = 500
 trainer:train(trainset)
 
