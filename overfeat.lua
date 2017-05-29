@@ -15,8 +15,7 @@ fullset = shuffleset
 trainset = {
     data = fullset.data[{{1,size*.5}}]:float(),
     label = fullset.label[{{1,size*.5}}],
-    size = size*.5
-}
+    size = size*.5}
 
 -- Testset 20% of fullset
 testset = {
@@ -26,23 +25,23 @@ testset = {
 }
 
 -- Converting trainset to meatable
-setmetatable(trainset, 
-    {__index = function(t, i) 
-                    return {t.data[i], t.label[i]} 
+setmetatable(trainset,
+    {__index = function(t, i)
+                    return {t.data[i], t.label[i]}
                 end}
 );
 trainset.data = trainset.data:float() -- convert the data from a ByteTensor to a DoubleTensor.
 
-function trainset:size() 
-    return self.data:size(1) 
+function trainset:size()
+    return self.data:size(1)
 end
 
 -- Model
 nn = require 'nn'
 
-model = torch.load('initmodelv4.net')  -- loading the model
+model = torch.load('models/initmodelv4.net')  -- loading the model
 model = model:cuda()  -- model for gpu
-criterion = nn.ClassNLLCriterion()   
+criterion = nn.ClassNLLCriterion()
 criterion = criterion:cuda()
 
 trainset.data = trainset.data:cuda()    -- Trainset for cuda
@@ -62,7 +61,7 @@ eval = function(dataset)      -- evalutation of testset
     for i=1,dataset.size do
         local target = dataset.label[i]
         local prediction = model:forward(dataset.data[i])
-        local confidences, indices = torch.sort(prediction, true)  
+        local confidences, indices = torch.sort(prediction, true)
         if target == indices[1] then
             correct = correct + 1
         end

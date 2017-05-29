@@ -26,15 +26,15 @@ testset = {
 }
 
 -- Converting trainset to meatable
-setmetatable(trainset, 
-    {__index = function(t, i) 
-                    return {t.data[i], t.label[i]} 
+setmetatable(trainset,
+    {__index = function(t, i)
+                    return {t.data[i], t.label[i]}
                 end}
 );
 trainset.data = trainset.data:float() -- convert the data from a ByteTensor to a DoubleTensor.
 
-function trainset:size() 
-    return self.data:size(1) 
+function trainset:size()
+    return self.data:size(1)
 end
 
 -- Model
@@ -58,7 +58,7 @@ model:add(nn.LogSoftMax())
 
 -- model = torch.load('modelv1.net')  -- loading the model
 model = model:cuda()  -- model for gpu
-criterion = nn.ClassNLLCriterion()   
+criterion = nn.ClassNLLCriterion()
 criterion = criterion:cuda()
 
 trainset.data = trainset.data:cuda()    -- Trainset for cuda
@@ -66,7 +66,7 @@ trainset.label = trainset.label:cuda()
 
 trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
 trainer.learningRate = 0.0001
-trainer.learningRateDecay = 0.09 
+trainer.learningRateDecay = 0.09
 trainer.maxIteration = 1000
 trainer:train(trainset)
 
@@ -79,7 +79,7 @@ eval = function(dataset)      -- evalutation of testset
     for i=1,dataset.size do
         local target = dataset.label[i]
         local prediction = model:forward(dataset.data[i])
-        local confidences, indices = torch.sort(prediction, true)  
+        local confidences, indices = torch.sort(prediction, true)
         if target == indices[1] then
             correct = correct + 1
         end
@@ -90,4 +90,4 @@ end
 print(eval(testset))
 
 model = model:float()  -- converting cuda model to cpu model
-torch.save('modelv2.net',model)   -- saving model
+torch.save('models/modelv2.net',model)   -- saving model

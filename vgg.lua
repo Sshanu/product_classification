@@ -1,7 +1,7 @@
 optim = require 'optim'
 require 'cunn';
 
-fullset = torch.load('data/size_224.dat') -- Shuffling fullset
+fullset = torch.load('data/size_48.dat') -- Shuffling fullset
 size = fullset.size
 shuffle = torch.randperm(size)
 shuffleset = fullset
@@ -13,7 +13,7 @@ fullset = shuffleset
 
 -- Trainset 50% of fullset
 trainset = {
-    data = fullset.data[{{1,size*.5}}]:float(),
+    data = fullset.data[{{1,size*.5}}]:double(),
     label = fullset.label[{{1,size*.5}}],
     size = size*.5
 }
@@ -31,7 +31,7 @@ setmetatable(trainset,
                     return {t.data[i], t.label[i]}
                 end}
 );
-trainset.data = trainset.data:float() -- convert the data from a ByteTensor to a DoubleTensor.
+trainset.data = trainset.data:double() -- convert the data from a ByteTensor to a DoubleTensor.
 
 function trainset:size()
     return self.data:size(1)
@@ -40,7 +40,7 @@ end
 -- Model
 nn = require 'nn'
 
-model = torch.load('initmodelv3.net')  -- loading the model
+model = torch.load('models/initmodelv5.net')  -- loading the model
 model = model:cuda()  -- model for gpu
 criterion = nn.ClassNLLCriterion()
 criterion = criterion:cuda()
@@ -49,7 +49,7 @@ trainset.data = trainset.data:cuda()    -- Trainset for cuda
 trainset.label = trainset.label:cuda()
 
 trainer = nn.StochasticGradient(model, criterion) --Training hyperparameters
-trainer.learningRate = 0.0001
+trainer.learningRate = 0.001
 trainer.maxIteration = 500
 trainer:train(trainset)
 
@@ -73,4 +73,4 @@ end
 print(eval(testset))
 
 model = model:float()  -- converting cuda model to cpu model
-torch.save('modelv3.net',model)   -- saving model
+torch.save('models/modelv6.net',model)   -- saving model
