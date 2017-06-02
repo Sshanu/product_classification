@@ -1,9 +1,9 @@
-rtorch = require "torch"
+torch = require "torch"
 nn = require "nn"
 
 model_name = arg[1]
 dataset_name = arg[2]
-max_iteration = arg[3]
+max_iteration = tonumber(arg[3])
 
 -- loading training set
 trainset = torch.load('data/'..dataset_name)
@@ -11,9 +11,11 @@ trainset = torch.load('data/'..dataset_name)
 -- Shuffling the training set
 shuffle = torch.randperm(trainset.size)
 shuffleset = trainset
+print(trainset)
+size = trainset.size
 for i=1, trainset.size do
   shuffleset.data[i] = trainset.data[shuffle[i]]
-  shuffle.label[i] = trainset.label[shuffle[i]]
+  shuffleset.label[i] = trainset.label[shuffle[i]]
 end
 
 
@@ -43,7 +45,7 @@ torch.save('models/'..model_name, model)
 
 eval = function(dataset)      -- evalutation of testset
     correct = 0
-    for i=1,dataset.size do
+    for i=1,size do
         local target = dataset.label[i]
         local prediction = model:forward(dataset.data[i])
         local confidences, indices = torch.sort(prediction, true)
@@ -51,7 +53,7 @@ eval = function(dataset)      -- evalutation of testset
             correct = correct + 1
         end
     end
-    return correct/dataset.size*100
+    return correct/size*100
 end
 
 print(eval(trainset))
