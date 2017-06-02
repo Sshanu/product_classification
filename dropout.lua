@@ -1,7 +1,7 @@
 optim = require 'optim'
 require 'cunn';
 
-fullset = torch.load('data/size_100.dat') -- Shuffling fullset
+fullset = torch.load('data/size_48.dat') -- Shuffling fullset
 size = fullset.size
 shuffle = torch.randperm(size)
 shuffleset = fullset
@@ -55,7 +55,7 @@ model:add(nn.Linear(20*9*9,100))
 model:add(nn.ReLU())
 model:add(nn.Linear(100,17))
 model:add(nn.LogSoftMax())
-
+model
 -- model = torch.load('modelv1.net')  -- loading the model
 model = model:cuda()  -- model for gpu
 criterion = nn.ClassNLLCriterion()

@@ -3,3 +3,5 @@
 
 #data
 *.dat
+temp.lua
+.ipynb

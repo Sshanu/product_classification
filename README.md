@@ -8,5 +8,5 @@
 | modelv4 | overfeat         | 231        | <20      | 50%          | 500        | `lr=.0001` `lrdecy=0.09` |
 | modelv5 | vgg16 5layer     |  48        | 100      | 50%          | 500        | `lr=.001`                |
 | modelv6 | vgg16 5layer(f)  |  48        | 100      | 50%          | 500        | `lr=.001`                |
-
+| modelv7 | dropout          |  48        | 75       | 100%(basic)  | 100        | `lr=.001`                |
 f = train fasle for given layers

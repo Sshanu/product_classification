@@ -11,7 +11,7 @@ for x=1,4 do
 	    local img = image.load('images/'..s[x]..'/img_' .. tostring(i) .. '.jpg',3,'byte')
 	    local img = image.scale(img,img_size,img_size)
 	    ibt[j] = img
-		il[j] = i
+			il[j] = i
 	    j=j+1; print(j)
 	end
 	for i=1,l do
