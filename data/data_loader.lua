@@ -2,6 +2,7 @@ require 'image'
 img_size = 48
 l = 17
 ibt=torch.ByteTensor(l*4*(8+3*9),3,img_size,img_size)
+ibt
 il=torch.ByteTensor(l*4*(8+3*9))
 j = 1
 s = {'croped','diff','difflight','light'}

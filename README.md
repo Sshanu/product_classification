@@ -34,4 +34,6 @@ th test.lua modelv7.net image.jpg
 | modelv6 | vgg16 5layer(f)  |  48        | 100      | 50%          | 500        | `lr=.001`                |
 | modelv7 | dropout          |  48        | 100       | 100%(basic)  | 200        | `lr=.001`                |
 
+modelv7 trained by sgd 100% accuracy in 200 iterations
+modelv7 trained by adam 100% accuracy in 20 iterations
 f = train fasle for given layers
