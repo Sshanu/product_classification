@@ -23,6 +23,29 @@ example:
 ```
 th test.lua modelv7.net image.jpg
 ```
+## Model
+Neural Network Architecture for input image size :48*48
+```
+model = nn.Sequential()
+model:add(nn.SpatialConvolution(3,6,5,5))
+model:add(nn.SpatialMaxPooling(2,2,2,2))
+model:add(nn.ReLU())
+model:add(nn.SpatialConvolution(6,16,5,5))
+model:add(nn.SpatialMaxPooling(2,2,2,2))
+model:add(nn.ReLU())
+model:add(nn.SpatialConvolution(16,20,5,5))
+model:add(nn.SpatialMaxPooling(2,2,2,2))
+model:add(nn.ReLU())
+model:add(nn.View(20*9*9))
+model:add(nn.Dropout(.2))
+model:add(nn.Linear(20*9*9,100))
+model:add(nn.ReLU())
+model:add(nn.Linear(100,17))
+model:add(nn.LogSoftMax())
+```
+
+
+## Experiments
 
 | Model   | Description      | Image Size | Accuracy | Training set | Iterations | Hyperparameters          |
 | --------|:----------------:| ----------:| -------- |:------------:| ----------:| -----------------------: |
